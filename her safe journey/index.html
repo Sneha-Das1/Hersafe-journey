@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HerSafe Journey</title>
+  
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    section.page-section { display: none; }
+    section.page-section.active { display: block; }
+    .hero { position: relative; min-height: 480px; overflow: hidden; }
+    .slide {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover; opacity: 0; transition: opacity 1s; z-index: 0;
+    }
+    .slide.active { opacity: 1; }
+    .hero-text { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">HerSafe Journey</div>
+    <nav>
+      
+        
+  <a href="#" data-section="home">Home</a>
+<a href="#" data-section="itinerary">Itinerary</a>
+<a href="#" data-section="checklist">Safety</a>
+<a href="#" data-section="reviews">Reviews</a>
+<a href="#" data-section="sos">SOS</a>
+<a href="#" data-section="currency">Currency</a>
+<a href="#" data-section="safezone">Safe Zones</a> 
+
+
+    </nav>
+  </header>
+
+
+
+
+
+  <!-- Home / Landing Section -->
+  <section id="home" class="page-section active">
+    <div class="hero">
+      <img src="slide1.jpg" alt="Slide 1" class="slide active" />
+      <img src="slide2.jpg" alt="Slide 2" class="slide" />
+      <img src="slide3.jpg" alt="Slide 3" class="slide" />
+      <div class="hero-text">
+        <h1>Safe travels <span>for every woman</span></h1>
+        <p>
+          Plan, explore, and travel safely with our comprehensive platform designed specifically for women travelers. From itinerary planning to emergency tools, we've got you covered.
+        </p>
+        <div class="hero-buttons">
+          <button class="btn-primary" onclick="showSection('itinerary')">Start Planning</button>
+          <button class="btn-secondary" onclick="window.location.href='#features'">Learn More</button>
+        </div>
+      </div>
+    </div>
+    <section class="features-section" id="features">
+      <h2>Everything you need for safe travels</h2>
+      <p>Comprehensive tools designed with women travelers' safety and convenience in mind.</p>
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>Itinerary Builder</h3>
+          <p>Create detailed day-wise travel plans with locations, notes, and checklists.</p>
+          <a href="#" onclick="showSection('itinerary')">Learn more →</a>
+        </div>
+        <div class="feature-card">
+          <h3>Safety Checklist</h3>
+          <p>Pre-travel safety checklist with emergency contacts and essential items.</p>
+          <a href="#" onclick="showSection('checklist')">Learn more →</a>
+        </div>
+        <div class="feature-card">
+          <h3>Community Reviews</h3>
+          <p>Read and share travel experiences with safety ratings and tips.</p>
+          <a href="#" onclick="showSection('reviews')">Learn more →</a>
+        </div>
+        <div class="feature-card">
+          <h3>Emergency SOS</h3>
+          <p>One-click emergency assistance with location sharing and alerts.</p>
+          <a href="#">Learn more →</a>
+        </div>
+        <div class="feature-card">
+          <h3>Currency Converter</h3>
+          <p>Real-time currency conversion for budget planning and expenses.</p>
+          <a href="#">Learn more →</a>
+        </div>
+       <div class="feature-card">
+  <h3>Safe Zone Mapping</h3>
+  <p>Interactive map with community-tagged safe and unsafe areas.</p>
+  <a href="#" onclick="showSection('safezone')">Learn more →</a> 
+</div>
+ 
+        </div>
+      </div>
+    </section>
+  </section>
+
+
+
+
+
+  <!-- Itinerary Section -->
+  <section id="itinerary" class="page-section">
+    <main class="itinerary-container">
+      <h1><span class="icon">&#128197;</span> Itinerary Builder</h1>
+      <div class="itinerary-box">
+        <div class="left-panel">
+          <h3>Travel Days</h3>
+          <ul id="days-list"></ul>
+        </div>
+        <div class="right-panel">
+          <div id="day-details" class="day-details">
+            <div class="empty-message">
+              <span class="icon">&#128198;</span>
+              <p>No day selected</p>
+              <small>Add a day to your itinerary to get started</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="button-group">
+        <button class="btn-add" onclick="addDay()">+ Add Day</button>
+        <button class="btn-save" onclick="saveItinerary()">Save</button>
+      </div>
+    </main>
+  </section>
+
+
+
+
+
+  <!-- Safety Checklist Section -->
+  <section id="checklist" class="page-section">
+    <main class="checklist-container">
+      <section class="checklist-header">
+        <h2>Safety Checklist</h2>
+        <p>Pre-travel safety preparation</p>
+        <div class="progress-bar">
+          <div id="progress-bar-fill"></div>
+        </div>
+        <div class="progress-label">
+          <span id="progress-percent">0%</span> Complete
+        </div>
+      </section>
+      <section class="add-item-section">
+        <select id="category-select">
+          <option value="essentials">Essentials</option>
+          <option value="documents">Documents</option>
+          <option value="communication">Communication</option>
+        </select>
+        <input type="text" id="new-item-input" placeholder="Add a new checklist item...">
+        <button id="add-item-btn">+</button>
+      </section>
+      <section class="checklist-section" id="essentials-section">
+        <h3 class="category-title essentials">Essentials <span id="essentials-count">(0/4)</span></h3>
+        <ul class="checklist" id="essentials-list">
+          <li><label><input type="checkbox"> <span class="item-text">Portable phone charger/power bank</span></label></li>
+          <li><label><input type="checkbox"> <span class="item-text">First aid kit</span></label></li>
+          <li><label><input type="checkbox"> <span class="item-text">Cash in local currency</span></label></li>
+          <li><label><input type="checkbox"> <span class="item-text">Backup payment methods</span></label></li>
+        </ul>
+      </section>
+      <section class="checklist-section" id="documents-section">
+        <h3 class="category-title documents">Documents <span id="documents-count">(0/4)</span></h3>
+        <ul class="checklist" id="documents-list">
+          <li><label><input type="checkbox"> <span class="item-text"> Copy of passport/ID stored separately</span></label></li>
+          <li><label><input type="checkbox"><span class="item-text"> Emergency contact list</span></label></li>
+          <li><label><input type="checkbox"><span class="item-text"> Travel insurance documents</span></label></li>
+          <li><label><input type="checkbox"> <span class="item-text">Hotel/accommodation details</span></label></li>
+        </ul>
+      </section>
+      <section class="checklist-section" id="communication-section">
+        <h3 class="category-title communication">Communication <span id="communication-count">(0/4)</span></h3>
+        <ul class="checklist" id="communication-list">
+          <li><label><input type="checkbox"><span class="item-text">Share itinerary with trusted contact</span></label></li>
+          <li><label><input type="checkbox"> <span class="item-text">Set up location sharing</span></label></li>
+          <li><label><input type="checkbox"><span class="item-text"> Download offline maps</span></label></li>
+          <li><label><input type="checkbox"><span class="item-text"> Local emergency numbers saved</span></label></li>
+        </ul>
+      </section>
+    </main>
+  </section>
+
+
+
+
+
+
+
+  <!-- Community Reviews Section -->
+<section id="reviews" class="page-section">
+  <main class="reviews-container">
+    <section class="reviews-header">
+      <h2>Community Reviews</h2>
+      <p>Real experiences from women travelers</p>
+      <div class="review-controls">
+        <input type="text" id="filter-country" placeholder="Filter by country...">
+        <select id="filter-rating">
+          <option value="">All Safety Ratings</option>
+          <option value="safe">Safe</option>
+          <option value="caution">Caution</option>
+        </select>
+        <button id="share-experience-btn" onclick="toggleReviewForm()">Share Experience</button>
+      </div>
+    </section>
+
+
+    <!-- Review Form (hidden by default) -->
+    <section id="review-form-section" style="display:none;">
+      <h3>Share Your Experience</h3>
+      <form id="review-form" onsubmit="submitReview(event)">
+        <input type="text" id="review-location" placeholder="Location" required>
+        <input type="text" id="review-country" placeholder="Country" required>
+        <input type="text" id="review-name" placeholder="Your name" required>
+        <select id="review-rating" required>
+          <option value="safe">Safe</option>
+          <option value="caution">Caution</option>
+        </select>
+        <textarea id="review-text" placeholder="Share your experience..." required></textarea>
+        <button type="submit">Submit Review</button>
+        <button type="button" id="cancel-review" onclick="toggleReviewForm()">Cancel</button>
+      </form>
+    </section>
+
+
+    <!-- Reviews List -->
+    <section id="reviews-list">
+      <div class="reviews-container">
+        <div class="review-card">
+          <div class="review-card-header">
+            <div class="review-avatar">AB</div>
+            <span class="review-username">Alice B.</span>
+          </div>
+          <div class="review-text">
+            Had a wonderful and safe experience at the hotel. Staff was very helpful!
+          </div>
+          <button class="like-btn" onclick="toggleLike(this)">
+            <i class="fa fa-heart"></i> <span class="like-count">0</span>
+          </button>
+        </div>
+        <div class="review-card">
+          <div class="review-card-header">
+            <div class="review-avatar">SM</div>
+            <span class="review-username">Sarah M.</span>
+          </div>
+          <div class="review-text">
+            Extremely safe for solo female travelers. Clean, efficient public transport and helpful locals. Late night walks felt completely safe.
+          </div>
+          <button class="like-btn" onclick="toggleLike(this)">
+            <i class="fa fa-heart"></i> <span class="like-count">0</span>
+          </button>
+        </div>
+        <div class="review-card">
+          <div class="review-card-header">
+            <div class="review-avatar">EL</div>
+            <span class="review-username">Emma L.</span>
+          </div>
+          <div class="review-text">
+            Generally safe but be cautious of scams in tourist areas. Stick to well-lit areas at night. Amazing food and culture!
+          </div>
+          <button class="like-btn" onclick="toggleLike(this)">
+            <i class="fa fa-heart"></i> <span class="like-count">0</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</section>
+
+
+
+
+
+<!-- SOS Section -->
+  <section id="sos" class="page-section">
+    <main class="sos-container">
+      <div class="sos-center-button">
+        <div id="sosCircle" class="sos-circle"
+            onmousedown="startSOS()" onmouseup="cancelSOS()"
+            ontouchstart="startSOS()" ontouchend="cancelSOS()">
+          <span id="sosLabel">SOS</span>
+        </div>
+        <p>Press and hold for 3 seconds to activate emergency procedures</p>
+        <div id="sosAlert" class="sos-alert" style="display: none;">
+          <span>🚨 SOS ACTIVATED - Emergency contacts will be notified</span>
+        </div>
+      </div>
+      <div class="sos-actions">
+        <section class="quick-actions">
+          <h3>📞 Quick Actions</h3>
+          <button class="btn red" onclick="callEmergency()">📞 Call Emergency Services</button>
+          <button class="btn blue" onclick="sendSMS()">💬 Send Location via SMS</button>
+          <button class="btn green" onclick="shareWhatsApp()">🟢 Share Location (WhatsApp)</button>
+          <button class="btn orange" onclick="soundAlarm()">🔊 Sound Alarm</button>
+        </section>
+        <section class="emergency-contacts">
+          <h3>👥 Emergency Contacts</h3>
+          <div class="contact-row">
+            <label>Emergency Services</label>
+            <input type="text" value="911" readonly />
+            <button class="call-btn" onclick="callNumber('911')">📞</button>
+          </div>
+          <div class="contact-row">
+            <label>Local Police</label>
+            <input type="text" value="911" readonly />
+            <button class="call-btn" onclick="callNumber('911')">📞</button>
+          </div>
+          <div class="add-contact-form">
+            <input type="text" id="contactName" placeholder="Contact name" />
+            <input type="tel" id="contactPhone" placeholder="Phone number" />
+            <button class="add-contact-btn" onclick="addContact()">Add Contact</button>
+          </div>
+        </section>
+      </div>
+      <section class="location-box">
+        <h4>📍 Current Location</h4>
+        <p>Your location will be automatically shared when emergency services are contacted.</p>
+        <button class="btn blue" onclick="getLocation()">Get Current Location</button>
+      </section>
+    </main>
+  </section>
+
+
+
+
+
+<section id="currency" class="page-section">
+  <main>
+    <section class="currency-section">
+      <h1><span class="currency-icon">$</span> Currency Converter</h1>
+      <p>Convert currencies for travel planning</p>
+      <div class="converter-box">
+        <input type="number" id="amount" value="100" min="1"/>
+        <select id="from-currency"></select>
+        <span class="swap-arrow">&#8646;</span>
+        <select id="to-currency"></select>
+        <button id="convert-btn">Convert</button>
+      </div>
+      <div class="conversion-result" id="conversion-result"></div>
+      <h2>Popular Travel Destinations</h2>
+      <div class="popular-destinations" id="popular-destinations"></div>
+      <h2>Exchange Rates (Base: USD)</h2>
+      <table class="exchange-table" id="exchange-table">
+        <thead>
+          <tr>
+            <th>Currency</th>
+            <th>Name</th>
+            <th>Rate</th>
+            <th>1 USD =</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+</section>
+
+
+
+
+
+<!-- Safe Zone Mapping Section (NOT in navbar) -->
+  <section id="safezone" class="page-section safezone-page">
+  <header style="background: #fff; padding: 1rem 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-shield-halved" style="color: #1976D2; font-size: 2rem; margin-right: 1rem;"></i>
+    <h1 style="font-size: 2rem; color: #1976D2; margin: 0;">SafeZones</h1>
+      <button id="findMeBtn" style="margin-left:auto; background: #1976D2; color: #fff; border: none; border-radius: 8px; padding: 0.7rem 1.5rem; font-size: 1rem; cursor: pointer;">
+      <i class="fa-solid fa-location-dot"></i> Find Me
+    </button>
+  </header>
+    <main style="display: flex;">
+      <aside class="sidebar">
+      <h2>Safe Zone Types</h2>
+        <ul>
+          <li><button id="policeBtn" class="zone-btn active"><i class="fa-solid fa-shield-halved" style="color:#1976D2"></i> Police Stations</button></li>
+          <li><button id="cafeBtn" class="zone-btn"><i class="fa-solid fa-mug-hot" style="color:#ff9800"></i> 24/7 Cafés & Diners</button></li>
+          <li><button id="helpBtn" class="zone-btn"><i class="fa-solid fa-hands-holding-child" style="color:#e53935"></i> Help Centers</button></li>
+        </ul>
+        <p style="font-size: 0.95rem; color: #555;">Click on any marker for more information about the location.</p>
+    </aside>
+      <div id="map" style="flex:1; height: 500px;"></div>
+  </main>
+    <section class="emergency" style="padding:1rem;">
+      <h3><i class="fa-regular fa-heart" style="color:#e53935"></i> Emergency Information</h3>
+  <p>In case of immediate danger, call emergency services directly:</p>
+      <button class="emergency-btn">Emergency: 911</button>
+      <button class="crisis-btn">Crisis Text Line: Text HOME to 741741</button>
+    </section>
+</section>
+
+
+
+
+
+    
+    
+
+
+
+<footer class="site-footer">
+    <div class="footer-copy">
+      &copy; Copyright - Her Safe Journey 2025
+    </div>
+  </footer>
+
+
+
+    
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="script.js"></script>
+<script src=""></script>
+  
+</body>
+</html>
+
+
