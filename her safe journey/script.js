@@ -504,7 +504,7 @@ const gmap = new google.maps.Map(googleMapDiv, {
 
 // Utility to fetch places from Google Places API
 function fetchPlaces(type, iconHtml) {
-  const apiKey = 'AIzaSyDXtpWU8rXYtFLFueXb4_IAaVPIi78kTcQ'; // Replace with your key
+  const apiKey = 'AIzaSyA-aGw0nV0n2x6LuKkpzYjDcEFor7DWgPw'; // Replace with your key
   const lat = 25.5941; // Patna latitude
   const lng = 85.1376; // Patna longitude
   const radius = 5000; // meters
