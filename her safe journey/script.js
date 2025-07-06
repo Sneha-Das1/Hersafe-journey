@@ -476,7 +476,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-let map; // map accessible globally
+let map;           // map accessible globally
+let markerGroup;   // marker group must be global
 
 document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('map')) {
@@ -486,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
 
-      let markerGroup = L.layerGroup().addTo(map);
+      markerGroup = L.layerGroup().addTo(map);
 
 
 // Add this just once, doesn't need to be visible
@@ -504,39 +505,68 @@ const gmap = new google.maps.Map(googleMapDiv, {
 
 // Utility to fetch places from Google Places API
 function fetchPlaces(type, iconHtml) {
-  const apiKey = 'AIzaSyA-aGw0nV0n2x6LuKkpzYjDcEFor7DWgPw'; // Replace with your key
-  const lat = 25.5941; // Patna latitude
-  const lng = 85.1376; // Patna longitude
-  const radius = 5000; // meters
+  const center = map.getCenter();
+  const lat = center.lat;
+  const lng = center.lng;
+  const delta = 0.03; // ~5km bounding box
 
-  // Clear previous markers
-  markerGroup.clearLayers();
+  const typeMap = {
+    police: "amenity=police",
+    hospital: "amenity=hospital",
+    cafe: "amenity=cafe"
+  };
 
-  fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${apiKey}`)
-    .then(response => response.json())
+  if (!typeMap[type]) {
+    console.error("Invalid type passed to fetchPlaces():", type);
+    alert("Invalid place type: " + type);
+    return;
+  }
+
+  const query = `
+    [out:json];
+    node[${typeMap[type]}](${lat - delta},${lng - delta},${lat + delta},${lng + delta});
+    out;
+  `;
+
+  const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+
+  markerGroup.clearLayers(); 
+  fetch(url)
+    .then(res => res.json())
     .then(data => {
-      if (data.results && data.results.length > 0) {
-        data.results.forEach(place => {
-          const marker = L.marker([place.geometry.location.lat, place.geometry.location.lng], {
-            icon: L.divIcon({
-              className: 'custom-icon',
-              html: iconHtml,
-              iconSize: [30, 30]
-            })
-          }).addTo(markerGroup);
-          marker.bindPopup(`<b>${place.name}</b><br>${place.vicinity}`);
-        });
-      } else {
-        alert('No locations found for this category.');
+      console.log("Fetched elements:", data.elements);
+      if (!data.elements || data.elements.length === 0) {
+        alert("No nearby places found.");
+        return;
       }
+
+      data.elements.forEach(place => {
+        if (!place.lat || !place.lon) return;
+          
+         console.log(`Placing marker at: lat=${place.lat}, lon=${place.lon}, name=${place.tags?.name || 'Unnamed'}`);
+
+
+        const popupText = `
+          <b>${place.tags?.name || type.toUpperCase()}</b><br>
+          ${place.tags?.["addr:street"] || ""}
+        `;
+
+        const marker = L.circleMarker([place.lat, place.lon], {
+  radius: 8,
+  color: '#4CAF50',       
+  fillColor: '#4CAF50',    
+  fillOpacity: 0.9
+}).addTo(markerGroup);
+
+
+        marker.bindPopup(popupText);
+      });
     })
     .catch(err => {
-      alert('Could not fetch places. Please check your API key and internet connection.');
-      console.error(err);
+      console.error("Error fetching or rendering Overpass data:", err);
+      alert("Something went wrong while fetching data.");
     });
 }
-
-
 
 
 
